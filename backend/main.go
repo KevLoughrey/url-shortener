@@ -225,9 +225,10 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func main() {
+	// Load .env file if it exists (for local development)
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("falling back to env vars")
 	}
 
 	dbURL := os.Getenv("DATABASE_URL")
