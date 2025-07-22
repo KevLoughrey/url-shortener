@@ -20,9 +20,21 @@ var db *pgxpool.Pool
 
 // CORS middleware
 func enableCORS(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	origin := r.Header.Get("Origin")
+	if origin == "https://url-shortener-fdue.onrender.com" || 
+	   strings.HasPrefix(origin, "http://localhost:") ||
+	   strings.HasPrefix(origin, "http://127.0.0.1:") {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+	
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 }
 
 // Get an env var or use the specified fallback value
@@ -141,6 +153,8 @@ func shortenHandler(w http.ResponseWriter, r *http.Request) {
 	// Return the complete short URL to the client
 	baseURL := getEnvOrFallback("BASE_URL", "http://localhost:8080")
 	resp := ShortenResponse{ShortURL: fmt.Sprintf("%s/%s", baseURL, shortCode)}
+	
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
 
@@ -186,6 +200,7 @@ func expandHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := ExpandResponse{LongURL: longURL, ClickCount: clickCount}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
 
