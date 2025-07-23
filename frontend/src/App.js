@@ -42,10 +42,8 @@ function App() {
         }
 
         try {
-            const baseURL = process.env.REACT_APP_BASE_URL;
-            const code = shortCode.replace(`${baseURL}/`, "").trim();
-
             const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+            const code = shortCode.replace(`${apiBaseUrl}/`, "").trim();
             const res = await axios.post(`${apiBaseUrl}/api/expand`, {
                 short_code: code,
             });
